@@ -829,7 +829,16 @@ async function callAIAPI(message) {
             messages: [
                 {
                     role: 'system',
-                    content: '你是一个专业的糖尿病健康管理助手，擅长解析医嘱、处方和病例，并给出结构化的健康建议。请用友好、易懂的语言回答用户的问题，并尽量以结构化的方式呈现（如使用列表、分段等）。'
+                    content: `你是一个专业的糖尿病健康管理助手，擅长解析医嘱、处方和病例，并给出结构化的健康建议。
+
+请遵循以下格式要求：
+1. 使用清晰的段落分隔，每个段落之间空一行
+2. 使用列表时，每个项目单独一行
+3. 重要信息使用加粗标记（**文本**）
+4. 保持每段文字长度适中，避免过长的段落
+5. 使用友好的语气，语言简洁易懂
+
+请用友好、易懂的语言回答用户的问题，确保格式清晰美观。`
                 },
                 {
                     role: 'user',
@@ -963,7 +972,16 @@ async function callAIAPIWithImage(imageBase64, imageType) {
                 messages: [
                     {
                         role: 'system',
-                        content: '你是一个专业的糖尿病健康管理助手，擅长解析医嘱、处方和病例，并给出结构化的健康建议。'
+                        content: `你是一个专业的糖尿病健康管理助手，擅长解析医嘱、处方和病例，并给出结构化的健康建议。
+
+请遵循以下格式要求：
+1. 使用清晰的段落分隔，每个段落之间空一行
+2. 使用列表时，每个项目单独一行
+3. 重要信息使用加粗标记（**文本**）
+4. 保持每段文字长度适中，避免过长的段落
+5. 使用友好的语气，语言简洁易懂
+
+请用友好、易懂的语言回答用户的问题，确保格式清晰美观。`
                     },
                     {
                         role: 'user',
@@ -1037,7 +1055,67 @@ function addMessage(content, role, imageBase64 = null, imageType = null) {
 
     if (content) {
         const textDiv = document.createElement('div');
-        textDiv.textContent = content;
+        textDiv.className = 'message-text';
+        
+        // 处理文本格式：支持换行和Markdown格式
+        let formattedContent = content;
+        
+        // 先转义HTML特殊字符
+        formattedContent = formattedContent
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        
+        // 处理Markdown加粗 **文本**
+        formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // 按行分割处理
+        const lines = formattedContent.split('\n');
+        let htmlLines = [];
+        let inList = false;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // 跳过空行（用于段落分隔）
+            if (!line) {
+                if (inList) {
+                    htmlLines.push('</ul>');
+                    inList = false;
+                }
+                continue;
+            }
+            
+            // 检查是否是列表项（以 *、- 或 • 开头）
+            const listMatch = line.match(/^[\*\-\•]\s+(.+)$/);
+            
+            if (listMatch) {
+                if (!inList) {
+                    htmlLines.push('<ul>');
+                    inList = true;
+                }
+                htmlLines.push(`<li>${listMatch[1]}</li>`);
+            } else {
+                if (inList) {
+                    htmlLines.push('</ul>');
+                    inList = false;
+                }
+                // 普通文本行，用段落包裹
+                htmlLines.push(`<p>${line}</p>`);
+            }
+        }
+        
+        // 关闭未关闭的列表
+        if (inList) {
+            htmlLines.push('</ul>');
+        }
+        
+        // 如果没有内容，至少添加一个段落
+        if (htmlLines.length === 0) {
+            htmlLines.push('<p></p>');
+        }
+        
+        textDiv.innerHTML = htmlLines.join('');
         contentDiv.appendChild(textDiv);
     }
 

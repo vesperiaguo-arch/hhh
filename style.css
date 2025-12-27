@@ -194,7 +194,59 @@ body {
     padding: 12px 16px;
     border-radius: 18px;
     word-wrap: break-word;
-    line-height: 1.5;
+    line-height: 1.6;
+}
+
+/* 消息文本格式 */
+.message-text {
+    word-wrap: break-word;
+}
+
+.message-text p {
+    margin: 0 0 14px 0;
+    line-height: 1.8;
+    color: inherit;
+}
+
+.message-text p:first-child {
+    margin-top: 0;
+}
+
+.message-text p:last-child {
+    margin-bottom: 0;
+}
+
+.message-text strong {
+    font-weight: 600;
+    color: inherit;
+}
+
+.message-text ul {
+    margin: 10px 0 14px 0;
+    padding-left: 24px;
+    list-style-type: disc;
+}
+
+.message-text ul:first-child {
+    margin-top: 0;
+}
+
+.message-text ul:last-child {
+    margin-bottom: 0;
+}
+
+.message-text li {
+    margin: 8px 0;
+    line-height: 1.7;
+    padding-left: 4px;
+}
+
+.message-text li:first-child {
+    margin-top: 4px;
+}
+
+.message-text li:last-child {
+    margin-bottom: 4px;
 }
 
 .message.user .message-content {
