@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>AI健康助手</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 聊天界面 -->
+    <div id="chatContainer" class="chat-container">
+        <!-- 顶部导航栏 -->
+        <header class="chat-header">
+            <h1>AI健康助手</h1>
+            <div class="header-status">
+                <span id="apiKeyStatus" class="status-badge" title="API密钥状态">🔑</span>
+                <span id="supabaseStatus" class="status-badge" title="数据库连接状态">💾</span>
+                <button id="settingsBtn" class="settings-btn" title="设置">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 对话消息区域 -->
+        <div class="messages-container" id="messagesContainer">
+            <div class="welcome-message">
+                <div class="welcome-icon">👋</div>
+                <h2>欢迎使用AI健康助手</h2>
+                <p>我可以帮您分析医嘱、处方和病例，提供个性化的健康建议</p>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="输入您的问题或描述..."
+                    rows="1"
+                ></textarea>
+                <button id="sendBtn" class="send-btn" title="发送">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-actions">
+                <button id="voiceBtn" class="action-btn" title="语音输入">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button id="uploadBtn" class="action-btn" title="上传图片">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </button>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+        </div>
+
+        <!-- 录音状态提示 -->
+        <div id="recordingStatus" class="recording-status" style="display: none;">
+            <div class="pulse"></div>
+            <span>正在录音...</span>
+        </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div id="settingsPanel" class="settings-panel" style="display: none;">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>设置</h2>
+                <button id="closeSettingsBtn" class="close-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="settings-body">
+                <div class="form-group">
+                    <label for="apiUrl">API地址</label>
+                    <input 
+                        type="text" 
+                        id="apiUrl" 
+                        class="form-input" 
+                        placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions"
+                        value="https://open.bigmodel.cn/api/paas/v4/chat/completions"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="apiKey">API密钥</label>
+                    <input 
+                        type="password" 
+                        id="apiKey" 
+                        class="form-input" 
+                        placeholder="请输入您的API密钥"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="modelName">模型名称</label>
+                    <input 
+                        type="text" 
+                        id="modelName" 
+                        class="form-input" 
+                        placeholder="glm-4.7"
+                        value="glm-4.7"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="supabaseUrl">Supabase Project URL</label>
+                    <input 
+                        type="text" 
+                        id="supabaseUrl" 
+                        class="form-input" 
+                        placeholder="https://xxx.supabase.co"
+                        value="https://sabezxfwynqsrgaufyje.supabase.co"
+                        readonly
+                    >
+                    <small class="form-hint">已自动配置</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="supabaseKey">Supabase Publishable Key</label>
+                    <input 
+                        type="text" 
+                        id="supabaseKey" 
+                        class="form-input" 
+                        placeholder="sb_publishable_xxx"
+                        value="sb_publishable_hiaFdODleKPjKS8hhyOupQ_C2sTLWdz"
+                        readonly
+                    >
+                    <small class="form-hint">已自动配置</small>
+                </div>
+
+                <button id="saveConfigBtn" class="save-btn">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <span>AI正在思考...</span>
+    </div>
+
+    <!-- 引入Supabase客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
